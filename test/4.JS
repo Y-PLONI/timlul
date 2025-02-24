@@ -3,4 +3,5 @@ function sendSimpleEmail() {
     var destEmail = ss.getRange("L2").getValue();
     GmailApp.sendEmail(destEmail, "שלום", "שלום");
   }
+  sendSimpleEmail();
   
