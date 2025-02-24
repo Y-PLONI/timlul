@@ -12,8 +12,10 @@ function processTranscriptionEmails() {
     
     for (var i = 0; i < threads.length; i++) {
       var thread = threads[i];
-      // אם כבר מעובד, מדלגים
-      if (thread.getLabels().some(function(l){ return l.getName() === processedLabelName; })) {
+      var threadLabels = thread.getLabels();
+      if (threadLabels.some(function(l) { 
+        return l.getName() === processedLabelName; 
+      })) {
         continue;
       }
       
