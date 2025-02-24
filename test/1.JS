@@ -11,7 +11,6 @@ function processTranscriptionEmails() {
     }
     
     var threads = label.getThreads();
-    
     for (var i = 0; i < threads.length; i++) {
       var thread = threads[i];
       var msgs = thread.getMessages();
@@ -33,26 +32,19 @@ function processTranscriptionEmails() {
         continue;
       }
       
-      // קריאת מפתח Groq מהגיליון (עמודה F = "Groq", עמודה G = המפתח)
+      // קריאת מפתח Groq מתא G1 בגיליון1
       var ss = SpreadsheetApp.getActiveSpreadsheet();
       var sheet = ss.getSheetByName("גיליון1");
-      var data = sheet.getDataRange().getValues();
-      var groqApiKey = "";
-      for (var k = 1; k < data.length; k++) {
-        if (data[k][5] && data[k][5].toString().toLowerCase() === "groq") {
-          groqApiKey = data[k][6];
-          break;
-        }
-      }
+      var groqApiKey = sheet.getRange("G1").getValue();
       if (!groqApiKey) {
-        Logger.log("לא נמצא מפתח Groq בגיליון");
+        Logger.log("המפתח של Groq לא נמצא בתא G1 בגיליון");
         continue;
       }
       
       // קריאה לשירות Groq לקבלת תמלול
       var transcription = callGroqTranscriptionAPI(audioFile, groqApiKey);
       
-      // קריאת כתובת המייל למשלוח מתא L2 בגיליון
+      // קריאת כתובת המייל למשלוח מתא L2 בגיליון1
       var sendToEmail = sheet.getRange("L2").getValue();
       if (!sendToEmail) {
         Logger.log("כתובת המייל לשליחה לא מוגדרת בתא L2");
@@ -73,7 +65,8 @@ function processTranscriptionEmails() {
   }
   
   function callGroqTranscriptionAPI(audioFile, apiKey) {
-    var url = "https://api.groq.example.com/audio/transcriptions"; // עדכן לכתובת הנכונה
+    // URL מעודכן לפי ההטמעה של Groq
+    var url = "https://api.groq.ai/v1/audio/transcriptions";
     var options = {
       method: "post",
       headers: {
@@ -89,7 +82,7 @@ function processTranscriptionEmails() {
     
     var response = UrlFetchApp.fetch(url, options);
     if (response.getResponseCode() !== 200) {
-      throw "שגיאה בגרוק API, קוד: " + response.getResponseCode();
+      throw "שגיאה ב-Groq API, קוד: " + response.getResponseCode();
     }
     
     var result = JSON.parse(response.getContentText());
