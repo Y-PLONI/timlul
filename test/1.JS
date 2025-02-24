@@ -7,15 +7,24 @@ function processTranscriptionEmails() {
       return;
     }
     
-    var processedLabel = GmailApp.getUserLabelByName(processedLabelName) || GmailApp.createLabel(processedLabelName);
+    var processedLabel = GmailApp.getUserLabelByName(processedLabelName);
+    if (!processedLabel) {
+      processedLabel = GmailApp.createLabel(processedLabelName);
+    }
+    
     var threads = label.getThreads();
     
     for (var i = 0; i < threads.length; i++) {
       var thread = threads[i];
       var threadLabels = thread.getLabels();
-      if (threadLabels.some(function(l) { 
-        return l.getName() === processedLabelName; 
-      })) {
+      var alreadyProcessed = false;
+      for (var j = 0; j < threadLabels.length; j++) {
+        if (threadLabels[j].getName() === processedLabelName) {
+          alreadyProcessed = true;
+          break;
+        }
+      }
+      if (alreadyProcessed) {
         continue;
       }
       
@@ -24,8 +33,8 @@ function processTranscriptionEmails() {
       var attachments = message.getAttachments();
       var audioFile = null;
       
-      for (var j = 0; j < attachments.length; j++) {
-        var file = attachments[j];
+      for (var k = 0; k < attachments.length; k++) {
+        var file = attachments[k];
         if (/\.(mp3|m4a|wav)$/i.test(file.getName())) {
           audioFile = file;
           break;
@@ -42,9 +51,9 @@ function processTranscriptionEmails() {
       var sheet = ss.getSheetByName("גיליון1");
       var data = sheet.getDataRange().getValues();
       var groqApiKey = "";
-      for (var k = 1; k < data.length; k++) {
-        if (data[k][5] && data[k][5].toString().toLowerCase() === "groq") {
-          groqApiKey = data[k][6];
+      for (var m = 1; m < data.length; m++) {
+        if (data[m][5] && data[m][5].toString().toLowerCase() === "groq") {
+          groqApiKey = data[m][6];
           break;
         }
       }
